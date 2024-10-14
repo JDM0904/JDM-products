@@ -1,356 +1,367 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opem Ai</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #fff; /* Light mode background */
-            color: #000; /* Light mode text color */
-            transition: background-color 0.3s, color 0.3s;
-        }
-        #chatbox {
-            border: 1px solid #ccc; /* Light mode border */
-            padding: 10px;
-            height: 300px;
-            overflow-y: scroll;
-            margin-bottom: 10px;
-        }
-        .user {
-            margin: 5px 0;
-        }
-        .ai {
-            margin: 5px 0;
-            font-weight: bold; /* Bold for AI responses */
-        }
-        #toggleButton {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 10px;
-            cursor: pointer;
-            color: #000; /* Button text color */
-            background-color: #eee; /* Button background for light mode */
-            border: none;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .dark-mode {
-            background-color: #333; /* Dark mode background */
-            color: #fff; /* Dark mode text color */
-        }
-        .dark-mode #chatbox {
-            border: 1px solid #666; /* Dark mode border */
-        }
-        .dark-mode #toggleButton {
-            background-color: #444; /* Button background for dark mode */
-            color: #fff; /* Button text color for dark mode */
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Opem Ai</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 20px;
+			background-color: #fff; /* Light mode background */
+			color: #000; /* Light mode text color */
+			transition: background-color 0.3s, color 0.3s;
+		}
+		#chatbox {
+			border: 1px solid #ccc; /* Light mode border */
+			padding: 10px;
+			height: 300px;
+			overflow-y: scroll;
+			margin-bottom: 10px;
+		}
+		.user {
+			margin: 5px 0;
+		}
+		.ai {
+			margin: 5px 0;
+			font-weight: bold; /* Bold for AI responses */
+		}
+		#toggleButton {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			padding: 10px;
+			cursor: pointer;
+			color: #000; /* Button text color */
+			background-color: #eee; /* Button background for light mode */
+			border: none;
+			border-radius: 5px;
+			transition: background-color 0.3s, color 0.3s;
+		}
+		.dark-mode {
+			background-color: #333; /* Dark mode background */
+			color: #fff; /* Dark mode text color */
+		}
+		.dark-mode #chatbox {
+			border: 1px solid #666; /* Dark mode border */
+		}
+		.dark-mode #toggleButton {
+			background-color: #444; /* Button background for dark mode */
+			color: #fff; /* Button text color for dark mode */
+		}
+	</style>
 </head>
 <body>
-    <div id="toggleButton" onclick="toggleDarkMode()">Toggle Dark Mode</div>
-    <h1>AI Chatbot</h1>
-    <div id="chatbox"></div>
-    <input type="text" id="userInput" placeholder="Ask me anything or enter a math problem...">
-    <button onclick="getResponse()">Send</button>
+	<div id="toggleButton" onclick="toggleDarkMode()">Toggle Dark Mode</div>
+	<h1>AI Chatbot</h1>
+	<div id="chatbox"></div>
+	<input type="text" id="userInput" placeholder="Ask me anything or enter a math problem...">
+	<button onclick="getResponse()">Send</button>
 
-    <script>
-        const memory = {};
-        const conversationHistory = {};
-        const definitions = {
-            "the": "used to refer to a person or thing that is unique or known.",
-            "be": "to exist; to have reality or presence.",
-            "and": "used to connect words of the same part of speech, clauses, or sentences.",
-            "of": "expressing the relationship between a part and a whole.",
-            "a": "used when referring to someone or something for the first time.",
-            "in": "expressing the situation of something that is or appears to be enclosed or surrounded by something else.",
-            "to": "expressing motion in the direction of (a particular location).",
-            "have": "to possess, own, or hold.",
-            "it": "used to refer to a thing previously mentioned or easily identified.",
-            "you": "used to refer to the person or people that the speaker is addressing.",
-            "that": "used to identify a specific person or thing observed or heard.",
-            "he": "used to refer to a male person or animal previously mentioned.",
-            "was": "past tense of be.",
-            "for": "with the object or purpose of.",
-            "on": "physically in contact with and supported by.",
-            "are": "second person singular present of be.",
-            "as": "used in comparisons to refer to the extent of something.",
-            "with": "accompanied by.",
-            "his": "belonging to or associated with a male person previously mentioned.",
-            "they": "used to refer to two or more people or things.",
-            "at": "used to indicate a location or position.",
-            "become": "begin to be.",
-            "this": "used to identify a specific person or thing close at hand.",
-            "by": "indicating the means of achieving something.",
-            "from": "indicating the point in space at which a journey, motion, or action starts.",
-            "but": "used to introduce a phrase or clause contrasting with what has already been mentioned.",
-            "not": "used to express the negation of a word, clause, or sentence.",
-            "all": "used to refer to the whole quantity or extent of a particular group or thing.",
-            "she": "used to refer to a female person or animal previously mentioned.",
-            "or": "used to link alternatives.",
-            "which": "used to ask questions about one or more items from a defined set.",
-            "who": "used to introduce a clause giving further information about a person or people.",
-            "whom": "used instead of 'who' as the object of a verb or preposition.",
-            "if": "introducing a conditional clause.",
-            "more": "a greater or additional amount or degree.",
-            "some": "an unspecified amount or number of.",
-            "her": "belonging to or associated with a female person previously mentioned.",
-            "no": "used to indicate the negative response or absence.",
-            "other": "used to refer to a person or thing that is different from one already mentioned.",
-            "than": "used to introduce the second element in a comparison.",
-            "then": "at that time; at the time in question.",
-            "now": "at the present moment.",
-            "look": "direct one's gaze toward someone or something.",
-            "only": "and no one or nothing more besides; solely.",
-            "come": "move or travel toward or into a place thought of as near or familiar to the speaker.",
-            "its": "belonging to or associated with a thing previously mentioned.",
-            "car": "A car is a vehicle that can travel across land in long or short distances.",
-            "meme": "A meme is an amusing or interesting item, such as a captioned picture or video, that spreads widely online.",
-            "country": "A country is a large piece of land owned by a group of people called a goverment.",
-            "ohio": "Ohio (oh-HY-oh) is a state in the Midwestern region of the United States. It borders Lake Erie to the north, Pennsylvania to the east, West Virginia to the southeast, Kentucky to the southwest, Indiana to the west, and Michigan to the northwest."
-        };
+	<script>
+		const memory = {};
+		const conversationHistory = {};
+		const definitions = {
+			"the": "used to refer to a person or thing that is unique or known.",
+			"be": "to exist; to have reality or presence.",
+			"and": "used to connect words of the same part of speech, clauses, or sentences.",
+			"of": "expressing the relationship between a part and a whole.",
+			"a": "used when referring to someone or something for the first time.",
+			"in": "expressing the situation of something that is or appears to be enclosed or surrounded by something else.",
+			"to": "expressing motion in the direction of (a particular location).",
+			"have": "to possess, own, or hold.",
+			"it": "used to refer to a thing previously mentioned or easily identified.",
+			"you": "used to refer to the person or people that the speaker is addressing.",
+			"that": "used to identify a specific person or thing observed or heard.",
+			"he": "used to refer to a male person or animal previously mentioned.",
+			"was": "past tense of be.",
+			"for": "with the object or purpose of.",
+			"on": "physically in contact with and supported by.",
+			"are": "second person singular present of be.",
+			"as": "used in comparisons to refer to the extent of something.",
+			"with": "accompanied by.",
+			"his": "belonging to or associated with a male person previously mentioned.",
+			"they": "used to refer to two or more people or things.",
+			"at": "used to indicate a location or position.",
+			"become": "begin to be.",
+			"this": "used to identify a specific person or thing close at hand.",
+			"by": "indicating the means of achieving something.",
+			"from": "indicating the point in space at which a journey, motion, or action starts.",
+			"but": "used to introduce a phrase or clause contrasting with what has already been mentioned.",
+			"not": "used to express the negation of a word, clause, or sentence.",
+			"all": "used to refer to the whole quantity or extent of a particular group or thing.",
+			"she": "used to refer to a female person or animal previously mentioned.",
+			"or": "used to link alternatives.",
+			"which": "used to ask questions about one or more items from a defined set.",
+			"who": "used to introduce a clause giving further information about a person or people.",
+			"whom": "used instead of 'who' as the object of a verb or preposition.",
+			"if": "introducing a conditional clause.",
+			"more": "a greater or additional amount or degree.",
+			"some": "an unspecified amount or number of.",
+			"her": "belonging to or associated with a female person previously mentioned.",
+			"no": "used to indicate the negative response or absence.",
+			"other": "used to refer to a person or thing that is different from one already mentioned.",
+			"than": "used to introduce the second element in a comparison.",
+			"then": "at that time; at the time in question.",
+			"now": "at the present moment.",
+			"look": "direct one's gaze toward someone or something.",
+			"only": "and no one or nothing more besides; solely.",
+			"come": "move or travel toward or into a place thought of as near or familiar to the speaker.",
+			"its": "belonging to or associated with a thing previously mentioned.",
+			"car": "A car is a vehicle that can travel across land in long or short distances.",
+			"meme": "A meme is an amusing or interesting item, such as a captioned picture or video, that spreads widely online.",
+			"country": "A country is a large piece of land owned by a group of people called a goverment.",
+			"ohio": "Ohio (oh-HY-oh) is a state in the Midwestern region of the United States. It borders Lake Erie to the north, Pennsylvania to the east, West Virginia to the southeast, Kentucky to the southwest, Indiana to the west, and Michigan to the northwest."
+		};
 
-        const jokes = [
-            "Why don't scientists trust atoms? Because they make up everything!",
-            "What do you call fake spaghetti? An impasta!",
-            "Why did the scarecrow win an award? Because he was outstanding in his field!",
-            "Why did the golfer bring two pairs of pants? In case he got a hole in one!",
-            "Why was the math book sad? Because it had too many problems!",
-            "What do you call cheese that isn't yours? Nacho cheese!",
-            "Why did the bicycle fall over? Because it was two-tired!",
-            "Why don't skeletons fight each other? They don't have the guts!",
-            "What do you call a factory that makes good products? A satisfactory!",
-            "Why can't you give Elsa a balloon? Because she will let it go!"
-        ];
+		const jokes = [
+			"Why don't scientists trust atoms? Because they make up everything!",
+			"What do you call fake spaghetti? An impasta!",
+			"Why did the scarecrow win an award? Because he was outstanding in his field!",
+			"Why did the golfer bring two pairs of pants? In case he got a hole in one!",
+			"Why was the math book sad? Because it had too many problems!",
+			"What do you call cheese that isn't yours? Nacho cheese!",
+			"Why did the bicycle fall over? Because it was two-tired!",
+			"Why don't skeletons fight each other? They don't have the guts!",
+			"What do you call a factory that makes good products? A satisfactory!",
+			"Why can't you give Elsa a balloon? Because she will let it go!"
+		];
 
-        const facts = [
-            "Honey never spoils. Archaeologists have found edible honey in ancient Egyptian tombs.",
-            "Octopuses have three hearts and blue blood.",
-            "Bananas are berries, but strawberries aren't.",
-            "Wombat poop is cube-shaped.",
-            "A group of flamingos is called a 'flamboyance.'",
-            "There are more stars in the universe than grains of sand on all the Earth's beaches.",
-            "The Eiffel Tower can be 15 cm taller during the summer due to thermal expansion.",
-            "Cats have fewer toes on their back paws.",
-            "Sharks have been around longer than trees.",
-            "A day on Venus is longer than a year on Venus."
-        ];
+		const facts = [
+			"Honey never spoils. Archaeologists have found edible honey in ancient Egyptian tombs.",
+			"Octopuses have three hearts and blue blood.",
+			"Bananas are berries, but strawberries aren't.",
+			"Wombat poop is cube-shaped.",
+			"A group of flamingos is called a 'flamboyance.'",
+			"There are more stars in the universe than grains of sand on all the Earth's beaches.",
+			"The Eiffel Tower can be 15 cm taller during the summer due to thermal expansion.",
+			"Cats have fewer toes on their back paws.",
+			"Sharks have been around longer than trees.",
+			"A day on Venus is longer than a year on Venus."
+		];
 
-        const essayTopics = [
-            "The Importance of Biodiversity",
-            "The Impact of Technology on Society",
-            "Climate Change and Its Effects",
-            "The Benefits of Reading Books",
-            "Space Exploration: The Next Frontier",
-            "The Role of Art in Human Experience",
-            "Healthy Eating: A Path to Wellness",
-            "The Evolution of Communication",
-            "The Significance of Renewable Energy",
-            "The Power of Music in Our Lives",
-            "The Influence of Social Media on Modern Relationships",
-            "The Importance of Education in Today’s Society",
-            "The Role of Government in the Economy",
-            "The Effects of Globalization on Local Cultures",
-            "The Challenges of Urbanization in the 21st Century",
-            "Mental Health Awareness and Its Importance",
-            "The Future of Artificial Intelligence",
-            "Environmental Conservation Efforts",
-            "The Role of Sports in Personal Development",
-            "The Significance of Historical Events in Shaping the Future"
-        ];
-        const thingsTodo = [
-            "I would like to visit one of the 7 wonders!",
-            "I would like to visit florida!",
-            "I would like to go to a resturant!",
-            "It would be fun to visit Japan!",
-            "It would be fun to learn spanish!",
-            "It would be entertaining to play some games!"
-        ]
+		const essayTopics = [
+			"The Importance of Biodiversity",
+			"The Impact of Technology on Society",
+			"Climate Change and Its Effects",
+			"The Benefits of Reading Books",
+			"Space Exploration: The Next Frontier",
+			"The Role of Art in Human Experience",
+			"Healthy Eating: A Path to Wellness",
+			"The Evolution of Communication",
+			"The Significance of Renewable Energy",
+			"The Power of Music in Our Lives",
+			"The Influence of Social Media on Modern Relationships",
+			"The Importance of Education in Today’s Society",
+			"The Role of Government in the Economy",
+			"The Effects of Globalization on Local Cultures",
+			"The Challenges of Urbanization in the 21st Century",
+			"Mental Health Awareness and Its Importance",
+			"The Future of Artificial Intelligence",
+			"Environmental Conservation Efforts",
+			"The Role of Sports in Personal Development",
+			"The Significance of Historical Events in Shaping the Future"
+		];
+		const thingsTodo = [
+			"I would like to visit one of the 7 wonders!",
+			"I would like to visit florida!",
+			"I would like to go to a resturant!",
+			"It would be fun to visit Japan!",
+			"It would be fun to learn spanish!",
+			"It would be entertaining to play some games!"
+		]
 
-        function generateEssay(topic) {
-            switch (topic) {
-                case "The Importance of Biodiversity":
-                    return "Biodiversity is crucial for the stability of ecosystems. It ensures natural sustainability for all life forms. A rich variety of species contributes to the resilience of ecosystems against disturbances. Protecting biodiversity is essential for maintaining healthy environments.";
-                case "The Impact of Technology on Society":
-                    return "Technology has revolutionized the way we communicate and interact. It offers unprecedented access to information and resources. While it enhances productivity, it can also lead to social isolation. Understanding its impact is crucial for harnessing its benefits while mitigating drawbacks.";
-                case "Climate Change and Its Effects":
-                    return "Climate change poses a significant threat to our planet. Rising temperatures lead to severe weather patterns and ecological disruptions. It affects food security, health, and economic stability worldwide. Addressing climate change requires global cooperation and sustainable practices.";
-                case "The Benefits of Reading Books":
-                    return "Reading books enriches our minds and enhances cognitive skills. It allows us to explore diverse perspectives and cultures. Engaging with literature improves empathy and critical thinking. Overall, reading is vital for personal growth and lifelong learning.";
-                case "Space Exploration: The Next Frontier":
-                    return "Space exploration represents humanity's quest for knowledge. It drives technological advancements and inspires generations. Understanding the universe also raises philosophical questions about our existence. As we venture into space, we uncover secrets that can benefit life on Earth.";
-                case "The Role of Art in Human Experience":
-                    return "Art is a powerful medium for expression and communication. It reflects cultural values and societal issues, fostering understanding. Engaging with art can evoke emotions and inspire change. Ultimately, art enriches our human experience and connects us to one another.";
-                case "Healthy Eating: A Path to Wellness":
-                    return "Healthy eating is fundamental for overall wellness. It provides essential nutrients that support bodily functions. A balanced diet can prevent chronic diseases and promote longevity. Making informed food choices is crucial for maintaining a healthy lifestyle.";
-                case "The Evolution of Communication":
-                    return "Communication has transformed dramatically over the centuries. From oral traditions to written language, each advancement shapes society. The rise of digital communication continues to change interpersonal interactions. Understanding these changes helps us navigate the modern world.";
-                case "The Significance of Renewable Energy":
-                    return "Renewable energy sources are vital for a sustainable future. They reduce dependence on fossil fuels and lower greenhouse gas emissions. Investing in renewable energy creates jobs and stimulates the economy. Transitioning to clean energy is crucial for combating climate change.";
-                case "The Power of Music in Our Lives":
-                    return "Music plays a significant role in shaping our emotions and experiences. It transcends cultural barriers and fosters connections among people. Research shows that music can improve mental health and well-being. Ultimately, music enriches our lives and expresses our shared humanity.";
-                case "The Influence of Social Media on Modern Relationships":
-                    return "Social media has fundamentally changed how we form and maintain relationships. It provides platforms for connection, but can also create misunderstandings. Balancing online interactions with real-life connections is essential. Understanding this influence is key to navigating modern relationships.";
-                case "The Importance of Education in Today's Society":
-                    return "Education is a fundamental human right that empowers individuals. It fosters critical thinking and informed citizenship. In today’s fast-paced world, continuous learning is vital for personal and professional growth. Investing in education is crucial for a prosperous society.";
-                case "The Role of Government in the Economy":
-                    return "Governments play a crucial role in regulating and supporting economic growth. They establish policies that promote fair trade and protect consumers. Effective governance can enhance economic stability and reduce inequality. Understanding this role is essential for informed civic engagement.";
-                case "The Effects of Globalization on Local Cultures":
-                    return "Globalization significantly impacts cultural diversity and identity. It allows for the exchange of ideas and traditions, but can also lead to homogenization. Local cultures may struggle to maintain their uniqueness in a globalized world. Embracing cultural exchange while protecting local identities is vital.";
-                case "The Challenges of Urbanization in the 21st Century":
-                    return "Urbanization presents numerous challenges, including housing and infrastructure demands. Rapid population growth strains resources and services. Addressing urban issues requires innovative solutions and sustainable planning. Cities must adapt to ensure livability for future generations.";
-                case "Mental Health Awareness and Its Importance":
-                    return "Raising awareness about mental health is crucial for reducing stigma. Understanding mental health can lead to better support systems and resources. Promoting open discussions fosters a more inclusive society. Ultimately, prioritizing mental health is essential for overall well-being.";
-                case "The Future of Artificial Intelligence":
-                    return "AI technology is rapidly advancing and reshaping industries. It promises increased efficiency and innovation but raises ethical concerns. Understanding the implications of AI is crucial for responsible development. The future of AI holds both exciting possibilities and significant challenges.";
-                case "Environmental Conservation Efforts":
-                    return "Conservation efforts are essential for preserving natural resources and biodiversity. They combat climate change and protect endangered species. Engaging communities in conservation fosters a sense of stewardship. Collective action is crucial for ensuring a sustainable future.";
-                case "The Role of Sports in Personal Development":
-                    return "Sports contribute significantly to personal development and life skills. They teach teamwork, discipline, and resilience. Participation in sports can boost self-esteem and promote physical health. Emphasizing the value of sports fosters well-rounded individuals.";
-                case "The Significance of Historical Events in Shaping the Future":
-                    return "Historical events shape our present and future societies. They influence cultural values, political structures, and social norms. Understanding history is vital for informed decision-making and civic engagement. Learning from the past helps us navigate future challenges.";
-                default:
-                    return `But this may not be 100% accurate. Here is your essay!  ${topic} is very interesting because in the modern day world, ${topic} is very important. ${topic} can also help the world with many things like devoloping technology or solving climate. ${topic} can also be used to solve many other problems in this world.`
-            }
-        }
+		function generateEssay(topic) {
+			switch (topic) {
+				case "The Importance of Biodiversity":
+					return "Biodiversity is crucial for the stability of ecosystems. It ensures natural sustainability for all life forms. A rich variety of species contributes to the resilience of ecosystems against disturbances. Protecting biodiversity is essential for maintaining healthy environments.";
+				case "The Impact of Technology on Society":
+					return "Technology has revolutionized the way we communicate and interact. It offers unprecedented access to information and resources. While it enhances productivity, it can also lead to social isolation. Understanding its impact is crucial for harnessing its benefits while mitigating drawbacks.";
+				case "Climate Change and Its Effects":
+					return "Climate change poses a significant threat to our planet. Rising temperatures lead to severe weather patterns and ecological disruptions. It affects food security, health, and economic stability worldwide. Addressing climate change requires global cooperation and sustainable practices.";
+				case "The Benefits of Reading Books":
+					return "Reading books enriches our minds and enhances cognitive skills. It allows us to explore diverse perspectives and cultures. Engaging with literature improves empathy and critical thinking. Overall, reading is vital for personal growth and lifelong learning.";
+				case "Space Exploration: The Next Frontier":
+					return "Space exploration represents humanity's quest for knowledge. It drives technological advancements and inspires generations. Understanding the universe also raises philosophical questions about our existence. As we venture into space, we uncover secrets that can benefit life on Earth.";
+				case "The Role of Art in Human Experience":
+					return "Art is a powerful medium for expression and communication. It reflects cultural values and societal issues, fostering understanding. Engaging with art can evoke emotions and inspire change. Ultimately, art enriches our human experience and connects us to one another.";
+				case "Healthy Eating: A Path to Wellness":
+					return "Healthy eating is fundamental for overall wellness. It provides essential nutrients that support bodily functions. A balanced diet can prevent chronic diseases and promote longevity. Making informed food choices is crucial for maintaining a healthy lifestyle.";
+				case "The Evolution of Communication":
+					return "Communication has transformed dramatically over the centuries. From oral traditions to written language, each advancement shapes society. The rise of digital communication continues to change interpersonal interactions. Understanding these changes helps us navigate the modern world.";
+				case "The Significance of Renewable Energy":
+					return "Renewable energy sources are vital for a sustainable future. They reduce dependence on fossil fuels and lower greenhouse gas emissions. Investing in renewable energy creates jobs and stimulates the economy. Transitioning to clean energy is crucial for combating climate change.";
+				case "The Power of Music in Our Lives":
+					return "Music plays a significant role in shaping our emotions and experiences. It transcends cultural barriers and fosters connections among people. Research shows that music can improve mental health and well-being. Ultimately, music enriches our lives and expresses our shared humanity.";
+				case "The Influence of Social Media on Modern Relationships":
+					return "Social media has fundamentally changed how we form and maintain relationships. It provides platforms for connection, but can also create misunderstandings. Balancing online interactions with real-life connections is essential. Understanding this influence is key to navigating modern relationships.";
+				case "The Importance of Education in Today's Society":
+					return "Education is a fundamental human right that empowers individuals. It fosters critical thinking and informed citizenship. In today’s fast-paced world, continuous learning is vital for personal and professional growth. Investing in education is crucial for a prosperous society.";
+				case "The Role of Government in the Economy":
+					return "Governments play a crucial role in regulating and supporting economic growth. They establish policies that promote fair trade and protect consumers. Effective governance can enhance economic stability and reduce inequality. Understanding this role is essential for informed civic engagement.";
+				case "The Effects of Globalization on Local Cultures":
+					return "Globalization significantly impacts cultural diversity and identity. It allows for the exchange of ideas and traditions, but can also lead to homogenization. Local cultures may struggle to maintain their uniqueness in a globalized world. Embracing cultural exchange while protecting local identities is vital.";
+				case "The Challenges of Urbanization in the 21st Century":
+					return "Urbanization presents numerous challenges, including housing and infrastructure demands. Rapid population growth strains resources and services. Addressing urban issues requires innovative solutions and sustainable planning. Cities must adapt to ensure livability for future generations.";
+				case "Mental Health Awareness and Its Importance":
+					return "Raising awareness about mental health is crucial for reducing stigma. Understanding mental health can lead to better support systems and resources. Promoting open discussions fosters a more inclusive society. Ultimately, prioritizing mental health is essential for overall well-being.";
+				case "The Future of Artificial Intelligence":
+					return "AI technology is rapidly advancing and reshaping industries. It promises increased efficiency and innovation but raises ethical concerns. Understanding the implications of AI is crucial for responsible development. The future of AI holds both exciting possibilities and significant challenges.";
+				case "Environmental Conservation Efforts":
+					return "Conservation efforts are essential for preserving natural resources and biodiversity. They combat climate change and protect endangered species. Engaging communities in conservation fosters a sense of stewardship. Collective action is crucial for ensuring a sustainable future.";
+				case "The Role of Sports in Personal Development":
+					return "Sports contribute significantly to personal development and life skills. They teach teamwork, discipline, and resilience. Participation in sports can boost self-esteem and promote physical health. Emphasizing the value of sports fosters well-rounded individuals.";
+				case "The Significance of Historical Events in Shaping the Future":
+					return "Historical events shape our present and future societies. They influence cultural values, political structures, and social norms. Understanding history is vital for informed decision-making and civic engagement. Learning from the past helps us navigate future challenges.";
+				default:
+					return `But this may not be 100% accurate. Here is your essay!  ${topic} is very interesting because in the modern day world, ${topic} is very important. ${topic} can also help the world with many things like devoloping technology or solving climate. ${topic} can also be used to solve many other problems in this world.`
+			}
+		}
 
-        function normalizeInput(input) {
-            return input.toLowerCase().trim();
-        }
+		function normalizeInput(input) {
+			return input.toLowerCase().trim();
+		}
 
-        function simulateTyping(text, callback) {
-            const chatbox = document.getElementById('chatbox');
-            let index = 0;
-            const typingEffect = setInterval(() => {
-                if (index < text.length) {
-                    chatbox.innerHTML += text.charAt(index);
-                    index++;
-                    chatbox.scrollTop = chatbox.scrollHeight;
-                } else {
-                    clearInterval(typingEffect);
-                    callback();
-                }
-            }, 40);
-        }
+		function simulateTyping(text, callback) {
+			const chatbox = document.getElementById('chatbox');
+			let index = 0;
+			const typingEffect = setInterval(() => {
+				if (index < text.length) {
+					chatbox.innerHTML += text.charAt(index);
+					index++;
+					chatbox.scrollTop = chatbox.scrollHeight;
+				} else {
+					clearInterval(typingEffect);
+					callback();
+				}
+			}, 40);
+		}
 
-        function getResponse() {
-            const userInput = document.getElementById('userInput').value.trim();
-            const chatbox = document.getElementById('chatbox');
-            if (userInput === "") return;
+		function getResponse() {
+			const userInput = document.getElementById('userInput').value.trim();
+			const chatbox = document.getElementById('chatbox');
+			if (userInput === "") return;
 
-            chatbox.innerHTML += `<div class="user">You: ${userInput}</div>`;
-            document.getElementById('userInput').value = '';
+			chatbox.innerHTML += `<div class="user">You: ${userInput}</div>`;
+			document.getElementById('userInput').value = '';
 
-            const normalizedInput = normalizeInput(userInput);
-            let aiResponse = "Sorry! I am not sure how to respond to that.";
+			const normalizedInput = normalizeInput(userInput);
+			let aiResponse = "Sorry! I am not sure how to respond to that.";
 
-            // Overall things
-            if (normalizedInput.startsWith("hi") || normalizedInput.startsWith("hello")) {
-                aiResponse = "Hello! How can I assist you today?";
-            } else if (normalizedInput.includes("thank you") || normalizedInput.includes("thanks")) {
-                aiResponse = "You're welcome! I'm here to help.";
-            } else if (normalizedInput.startsWith("are you aware that you are an ai") || normalizedInput.startsWith("do you know you are an ai")) {
-                aiResponse = "Yes I am aware that i am an AI! My purpose for being made is to help people.";
-            } else if (normalizedInput.includes("what can you do") || normalizedInput.includes("who are you") || normalizedInput.includes("what are you")) {
-                aiResponse = "I am an AI chatbot that can do math problems, give you definitons, make essays, correct sentences, and more!";
-            } else if (normalizedInput.startsWith("can you help me") || normalizedInput.includes("help me")) {
-                aiResponse = "What would you like help with? I can give you definitions, help you make an essay, do math, and more.";
-            } else if (normalizedInput.startsWith("can you drive a car")) {
-                aiResponse = "No I cannot, even the most advanced of ai can not drive a car.";
-            } else if (normalizedInput.startsWith("what would you like to do") || normalizedInput.startsWith("what is another thing you would like to do")) {
-                aiResponse = aiResponse = thingsTodo[Math.floor(Math.random() * thingsTodo.length)];
-            }
-            // Memory management
-            if (normalizedInput.startsWith("remember ")) {
-                const info = normalizedInput.replace("remember ", "").trim();
-                if (info) {
-                    memory[info] = true;
-                    aiResponse = `Got it! I'll remember that until you close the tab.: ${info}`;
-                }
-            } else if (normalizedInput.startsWith("what do you remember")) {
-                aiResponse = `I remember: ${Object.keys(memory).join(", ") || "nothing."}`;
-            } else if (memory[normalizedInput]) {
-                aiResponse = `You previously mentioned: ${normalizedInput}`;
-            }
+			// Greetings and other basic things
+			if (normalizedInput.startsWith("hi") || normalizedInput.startsWith("hello")) {
+				aiResponse = "Hello! How can I assist you today?";
+			} else if (normalizedInput.includes("thank you") || normalizedInput.includes("thanks")) {
+				aiResponse = "You're welcome! I'm here to help.";
+			} else if (normalizedInput.startsWith("are you aware that you are an ai") || normalizedInput.startsWith("do you know you are an ai")) {
+				aiResponse = "Yes I am aware that i am an AI! My purpose for being made is to help people.";
+			} else if (normalizedInput.includes("what can you do") || normalizedInput.includes("who are you") || normalizedInput.includes("what are you")) {
+				aiResponse = "I am an AI chatbot that can do math problems, give you definitons, make essays, correct sentences, and more!";
+			} else if (normalizedInput.startsWith("can you help me") || normalizedInput.includes("help me")) {
+				aiResponse = "What would you like help with? I can give you definitions, help you make an essay, do math, and more.";
+			} else if (normalizedInput.startsWith("can you drive a car")) {
+				aiResponse = "No I cannot, even the most advanced of ai can not drive a car.";
+			} else if (normalizedInput.startsWith("what would you like to do") || normalizedInput.startsWith("what is another thing you would like to do")) {
+				aiResponse = aiResponse = thingsTodo[Math.floor(Math.random() * thingsTodo.length)];
+			}
+			// Memory management
+			if (normalizedInput.startsWith("remember ")) {
+				const info = normalizedInput.replace("remember ", "").trim();
+				if (info) {
+					memory[info] = true;
+					aiResponse = `Got it! I'll remember that until you close the tab.: ${info}`;
+				}
+			} else if (normalizedInput.startsWith("what do you remember")) {
+				aiResponse = `I remember: ${Object.keys(memory).join(", ") || "nothing."}`;
+			} else if (memory[normalizedInput]) {
+				aiResponse = `You previously mentioned: ${normalizedInput}`;
+			}
 
-            // Math operations
-            const mathRegex = /(-?\d+\.?\d*)\s*([-+*/^])\s*(-?\d+\.?\d*)/;
-            const match = normalizedInput.match(mathRegex);
-            if (match) {
-                const num1 = parseFloat(match[1]);
-                const operator = match[2];
-                const num2 = parseFloat(match[3]);
-                let result;
-                let explanation;
+			// Math operations
+			const mathRegex = /(-?\d+\.?\d*)\s*([-+*/^])\s*(-?\d+\.?\d*)/;
+			const match = normalizedInput.match(mathRegex);
+			if (match) {
+				const num1 = parseFloat(match[1]);
+				const operator = match[2];
+				const num2 = parseFloat(match[3]);
+				let result;
+				let explanation;
 
-                switch (operator) {
-                    case '+':
-                        result = num1 + num2;
-                        explanation = `To add ${num1} and ${num2}, we add the value of ${num1} and the value of ${num2} to get ${result}.`;
-                        break;
-                    case '-':
-                        result = num1 - num2;
-                        explanation = `Subtracting ${num2} from ${num1} gives ${result}. This can be found by removeing ${num2} from ${num1} to get ${result}.`;
-                        break;
-                    case '*':
-                        result = num1 * num2;
-                        explanation = `Multiplying ${num1} by ${num2} results in ${result}. To get this you can add ${num1} to itself ${num2} subtracted from 1, times.`;
-                        break;
-                    case '/':
-                        if (num2 !== 0) {
-                            result = num1 / num2;
-                            explanation = `Dividing ${num1} by ${num2} gives ${result}. Division can be seen as determining how many times one number fits into another.`;
-                        } else {
-                            result = "Undefined";
-                            explanation = "You can't divide by zero! Thats because as of now there is no defined value for devision by zero.";
-                        }
-                        break;
-                    case '^':
-                        result = Math.pow(num1, num2);
-                        explanation = `Raising ${num1} to the power of ${num2} gives us ${result}. This operation represents repeated multiplication of ${num1} by itself ${num2} times.`;
-                        break;
-                }
-                aiResponse = `${explanation} Therefore, the result is ${result}.`;
-            }
+				switch (operator) {
+					case '+':
+						result = num1 + num2;
+						explanation = `To add ${num1} and ${num2}, we add the value of ${num1} and the value of ${num2} to get ${result}.`;
+						break;
+					case '-':
+						result = num1 - num2;
+						explanation = `Subtracting ${num2} from ${num1} gives ${result}. This can be found by removeing ${num2} from ${num1} to get ${result}.`;
+						break;
+					case '*':
+						result = num1 * num2;
+						explanation = `Multiplying ${num1} by ${num2} results in ${result}. To get this you can add ${num1} to itself ${num2} subtracted from 1, times.`;
+						break;
+					case '/':
+						if (num2 !== 0) {
+							result = num1 / num2;
+							explanation = `Dividing ${num1} by ${num2} gives ${result}. Division can be seen as determining how many times one number fits into another.`;
+						} else {
+							result = "Undefined";
+							explanation = "You can't divide by zero! Thats because as of now there is no defined value for devision by zero.";
+						}
+						break;
+					case '^':
+						result = Math.pow(num1, num2);
+						explanation = `Raising ${num1} to the power of ${num2} gives us ${result}. This operation represents repeated multiplication of ${num1} by itself ${num2} times.`;
+						break;
+				}
+				aiResponse = `${explanation}`;
+			}
 
-            // Definitions
-            if (normalizedInput.startsWith("define ")) {
-                const word = normalizedInput.replace("define ", "").trim();
-                aiResponse = definitions[word] || `Sorry, I don't have a definition for "${word}".`;
-            }
+			// Definitions
+			if (normalizedInput.startsWith("define ")) {
+				const word = normalizedInput.replace("define ", "").trim();
+				aiResponse = definitions[word] || `Sorry, I don't have a definition for "${word}".`;
+			}
 
-            // Jokes and facts
-            if (normalizedInput.includes("give me a joke") || normalizedInput.includes("tell me a joke") || normalizedInput.includes("tell me another joke") || normalizedInput.includes("give me another joke")) {
-                aiResponse = jokes[Math.floor(Math.random() * jokes.length)];
-            } else if (normalizedInput.includes("give me a fact") || normalizedInput.includes("tell me a fact")) {
-                aiResponse = facts[Math.floor(Math.random() * facts.length)];
-            } else if (normalizedInput.includes("give me some common words") || normalizedInput.includes("tell me some common words")) {
-                aiResponse = `Here are some common words: ${Object.keys(definitions).slice(0, 10).join(", ")}.`;
-            }
+			let lastRequest = "";  // To track the last request (e.g., joke, fact)
 
-            // Essay generation
-            if (normalizedInput.startsWith("make an essay about ")) {
-                const topic = normalizedInput.replace("make an essay about ", "").trim();
-                aiResponse = `Here's an essay on "${topic}".\n\n${generateEssay(topic)}`;
-            } else if (normalizedInput.startsWith("make an essay") || normalizedInput.startsWith("create an essay") || normalizedInput.startsWith("can you make an essay")) {
-                const topic = essayTopics[Math.floor(Math.random() * essayTopics.length)];
-                aiResponse = `Here's an essay on "${topic}".\n\n${generateEssay(topic)}`;
-            }
+// Joke, fact, and context tracking
+if (userInput.includes("joke")) {
+	aiResponse = jokes[Math.floor(Math.random() * jokes.length)];
+	lastRequest = "joke";  // Track that the user asked for a joke
+} else if (userInput.includes("fact")) {
+	aiResponse = facts[Math.floor(Math.random() * facts.length)];
+	lastRequest = "fact";  // Track that the user asked for a fact
+} else if (userInput.includes("another") || userInput.includes("more")) {
+	if (lastRequest === "joke") {
+		aiResponse = jokes[Math.floor(Math.random() * jokes.length)];
+	} else if (lastRequest === "fact") {
+		aiResponse = facts[Math.floor(Math.random() * facts.length)];
+	} else {
+		aiResponse = "I'm not sure what you want more of!";
+	}
+}
 
-            // Output the AI response
-            simulateTyping(aiResponse, () => {
-                chatbox.innerHTML += `<div class="ai">AI: ${aiResponse}</div>`;
-                chatbox.scrollTop = chatbox.scrollHeight;
-            });
-        }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-        }
-    </script>
+			// Essay generation
+			if (normalizedInput.startsWith("make an essay about ")) {
+				const topic = normalizedInput.replace("make an essay about ", "").trim();
+				aiResponse = `Here's an essay on "${topic}".\n\n${generateEssay(topic)}`;
+			} else if (normalizedInput.startsWith("make an essay") || normalizedInput.startsWith("create an essay") || normalizedInput.startsWith("can you make an essay")) {
+				const topic = essayTopics[Math.floor(Math.random() * essayTopics.length)];
+				aiResponse = `Here's an essay on "${topic}".\n\n${generateEssay(topic)}`;
+			}
+
+			// Output the AI response
+			simulateTyping(aiResponse, () => {
+				chatbox.innerHTML += `<div class="ai">AI: ${aiResponse}</div>`;
+				chatbox.scrollTop = chatbox.scrollHeight;
+			});
+		}
+
+		function toggleDarkMode() {
+			document.body.classList.toggle('dark-mode');
+		}
+	</script>
 </body>
 </html>
