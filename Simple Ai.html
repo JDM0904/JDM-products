@@ -263,6 +263,8 @@
 				aiResponse = "No I cannot, even the most advanced of ai can not drive a car.";
 			} else if (normalizedInput.startsWith("what would you like to do") || normalizedInput.startsWith("what is another thing you would like to do")) {
 				aiResponse = aiResponse = thingsTodo[Math.floor(Math.random() * thingsTodo.length)];
+			}  else if (normalizedInput.includes("haha") || normalizedInput.includes("lol")) {
+				aiResponse = "I am glad your laughing! laughing is good for the soul";
 			}
 			// Memory management
 			if (normalizedInput.startsWith("remember ")) {
