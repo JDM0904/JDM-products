@@ -261,10 +261,14 @@
 				aiResponse = "What would you like help with? I can give you definitions, help you make an essay, do math, and more.";
 			} else if (normalizedInput.startsWith("can you drive a car")) {
 				aiResponse = "No I cannot, even the most advanced of ai can not drive a car.";
-			} else if (normalizedInput.startsWith("what would you like to do") || normalizedInput.startsWith("what is another thing you would like to do")) {
+			} else if (normalizedInput.startsWith("what would you like to do") || normalizedInput.startsWith("what else would you like to do")) {
 				aiResponse = aiResponse = thingsTodo[Math.floor(Math.random() * thingsTodo.length)];
-			}  else if (normalizedInput.includes("haha") || normalizedInput.includes("lol")) {
-				aiResponse = "I am glad your laughing! laughing is good for the soul";
+			} else if (normalizedInput.includes("haha") || normalizedInput.includes("lol")) {
+				aiResponse = "I am glad your laughing! Laughing is good for the soul.";
+			} else if (normalizedInput.includes("sad") || normalizedInput.includes("bad")) {
+				aiResponse = "I am sorry you are not feeling good. Here are some things you can do to feel better, talk with a friend, play outside, or just do anything that you think is fun!";
+			} else if (normalizedInput.includes("skibidi") || normalizedInput.includes("ohio rizz") || normalizedInput.includes("gyat")) {
+				aiResponse = "Brainrot is not good for you! it will not make you learn anything new or help you in life.";
 			}
 			// Memory management
 			if (normalizedInput.startsWith("remember ")) {
