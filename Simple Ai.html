@@ -102,10 +102,11 @@
         }
     </script>
     <script>
-        // AHLS memory system
-	    const memory = JSON.parse(localStorage.getItem('chatMemory')) || {};
-        const userPreferences = JSON.parse(localStorage.getItem('userPreferences')) || {};
-        const conversationHistory = [];
+        const memory = JSON.parse(localStorage.getItem('chatMemory')) || {};
+const userPreferences = JSON.parse(localStorage.getItem('userPreferences')) || {};
+let aiLearning = JSON.parse(localStorage.getItem('aiLearning')) || {};
+const conversationHistory = [];
+
 		// Definition list
         const definitions = {
     "science": "the intellectual and practical activity encompassing the systematic study of the structure and behavior of the physical and natural world through observation and experiment.",
@@ -218,7 +219,11 @@
     "this": "used to identify a specific person or thing close at hand.",
     "that": "used to identify a specific person or thing at a distance.",
     "here": "in, at, or to this place or position.",
-    "there": "in, at, or to that place or position."
+    "there": "in, at, or to that place or position.",
+    "quater note": "A quarter note (also known as a crotchet) is a musical note played for one quarter of the duration of a whole note",
+    "half note": "In music, a half note (American) or minim (British) is a note played for half the duration of a whole note.",
+    "whole note": "A whole note (American) or semibreve (British) in musical notation is a single note equivalent to or lasting as long as two half notes or four quarter notes.",
+    "meme": "an image, video, piece of text, etc., typically humorous in nature, that is copied and spread rapidly by internet users."
 };
 
 
@@ -227,7 +232,10 @@
             "What do you call fake spaghetti? An impasta!",
             "Why did the scarecrow win an award? Because he was outstanding in his field!",
             "How do you organize a space party? You planet!",
-            "What did one wall say to the other wall? I'll meet you at the corner!"
+            "What did one wall say to the other wall? I'll meet you at the corner!",
+            "What do you call a magic dog? A labracadabrador.",
+            "What bow can't be tied? A rainbow.",
+            "Why is 6 scared of 7? Because 7 8 9!"
         ];
 
         const facts = [
@@ -236,7 +244,12 @@
             "Octopuses have three hearts.",
             "The world's largest desert is Antarctica.",
             "Bananas are berries, but strawberries are not.",
-            "There are more stars in the universe then there are grains of sand on this planet."
+            "There are more stars in the universe then there are grains of sand on this planet",
+            "The bee hummingbird drinks from up to 1,500 flowers a day.",
+            "We throw away enough ribbon each year to tie a bow around the entire Earth.",
+            "Comets in ancient Greece were called “hairy stars.",
+            "African lions catch about 20% of the prey they chase.",
+            "The average cloud weighs over one million pounds, or about 100 elephants"
         ];
 
         const essayTopics = [
@@ -323,16 +336,17 @@
                 aiResponse = jokes[Math.floor(Math.random() * jokes.length)];
             } else if (normalizedInput.includes("what is the weather")) {
                 aiResponse = "I don't have a window, but I hope it's nice where you are!";
-            } else if (normalizedInput.startsWith("define ")) {
-                const word = normalizedInput.replace("define ", "").trim();
-                aiResponse = definitions[word] || `Sorry, I don't have a definition for "${word}".`;
+            } else if (normalizedInput.startsWith("define ") || normalizedInput.startsWith("what is a")) {
+              const word = normalizedInput.replace("define ", "").replace("what is a ", "").trim();
+              const definition = definitions[word] || `Sorry, I don't have a definition for "${word}".`;
+                aiResponse = definition;
             } else if (normalizedInput.startsWith("hi") || normalizedInput.startsWith("hello")) {
                 aiResponse = greetings[Math.floor(Math.random() * greetings.length)];
             } else if (normalizedInput.startsWith("what can you do") || normalizedInput.startsWith("who are you")) {
                 aiResponse = "I am an AI Chatbot that can do things like do math, have small talk, remember things for you, and more.";
             } else if (normalizedInput.includes("how were you made")) {
                 aiResponse = "I was made with a system that the owner calls AHLS and that stands for Advanced HTML Learning System. I am the first model of AHLS";
-            } else if (normalizedInput.includes("good") || normalizedInput.includes("great") || normalizedInput.includes("amazing") || normalizedInput.includes("meh") || normalizedInput.includes("okay") || normalizedInput.startsWith("yes") || normalizedInput.startsWith("no") || normalizedInput.includes("let's talk") || normalizedInput.includes("country") || normalizedInput.includes("rock") || normalizedInput.includes("pop") || normalizedInput.includes("rap") || normalizedInput.includes("idk") || normalizedInput.includes("i don't know")) {
+            } else if (normalizedInput.startsWith("good") || normalizedInput.startsWith("great") || normalizedInput.startsWith("amazing") || normalizedInput.startsWith("meh") || normalizedInput.startsWith("okay") || normalizedInput.startsWith("yes") || normalizedInput.startsWith("no") || normalizedInput.includes("let's talk") || normalizedInput.startsWith("country") || normalizedInput.startsWith("rock") || normalizedInput.startsWith("pop") || normalizedInput.startsWith("rap") || normalizedInput.includes("idk") || normalizedInput.includes("i don't know")) {
                 aiResponse = smallTalkResponses[Math.floor(Math.random() * smallTalkResponses.length)];
             } else if (normalizedInput.includes("when did queen elizabeth die?")) {
                 aiResponse = "September 8th 2022.";
@@ -340,45 +354,126 @@
                 aiResponse = "Brain rot is not good for you.";
             } else if (normalizedInput.includes("bye") || normalizedInput.includes("goodbye") || normalizedInput.includes("farewell")) {
                 aiResponse = "Goodbye! I hope I gave you all the help you need.";
-            }
-
-            // AHLS: Advanced HTML learning system
-            if (normalizedInput.startsWith("i like ")) {
-                const preference = normalizedInput.replace("i like ", "").trim();
-                userPreferences[preference] = true;
-                localStorage.setItem('userPreferences', JSON.stringify(userPreferences));
-                aiResponse = `Fun! I'll remember that you like ${preference}.`;
-            } else if (normalizedInput.startsWith("what do you like")) {
-                const likes = Object.keys(userPreferences).length > 0 
-                    ? `I don't have any likes myself, but you like ${Object.keys(userPreferences).join(", ")}.` 
-                    : "I don't have any likes myself.";
-                aiResponse = likes;
-            } else if (normalizedInput.startsWith("remember ")) {
-                const key = normalizedInput.replace("remember ", "").trim();
-                memory[key] = key;
-                localStorage.setItem('chatMemory', JSON.stringify(memory));
-                aiResponse = `I'll remember "${key}".`;
-            } else if (normalizedInput.startsWith("what do you remember")) {
-                aiResponse = `I remember: ${Object.keys(memory).join(", ") || "nothing."}`;
-            } else if (normalizedInput.startsWith("remove preference ")) {
-    const preferenceToRemove = normalizedInput.replace("remove preference ", "").trim();
-    if (userPreferences[preferenceToRemove]) {
-        delete userPreferences[preferenceToRemove];
-        localStorage.setItem('userPreferences', JSON.stringify(userPreferences));
-        aiResponse = `I've removed your preference for ${preferenceToRemove}.`;
-    } else {
-        aiResponse = `I couldn't find a preference for ${preferenceToRemove}.`;
-    }
-} else if (normalizedInput.startsWith("forget ")) {
-    const memoryToForget = normalizedInput.replace("forget ", "").trim();
-    if (memory[memoryToForget]) {
-        delete memory[memoryToForget];
-        localStorage.setItem('chatMemory', JSON.stringify(memory));
-        aiResponse = `I've forgotten "${memoryToForget}".`;
-    } else {
-        aiResponse = `I couldn't find any memory for "${memoryToForget}".`;
-    }
+            } else if (normalizedInput.startsWith("pi") || normalizedInput.includes("what is pi")) {
+                aiResponse = "the first 10 digits of pi are 3.1415926535";
+            } else if (normalizedInput.includes("what is the first 100 digits of pi")) {
+                aiResponse = "the first 100 digits of pi are 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679";
+            } else if (normalizedInput.startsWith("are you gay")) {
+                aiResponse = "I can't be gay because i am AI.";
+            } else if (normalizedInput.startsWith("do you support donald trump") || normalizedInput.startsWith("do you support comala")) {
+                aiResponse = "I don't know who i would support because I cannot vote.";
+            } else if (normalizedInput.includes("what is your favorite planet")) {
+               aiResponse = "I don't have a favorite planet, but Earth is the only one known to support life.";
+            } else if (normalizedInput.includes("what is your favorite country")) {
+               aiResponse = "I don't have a favorite country, but each one has its unique qualities.";
+            } else if (normalizedInput.includes("what is your favorite city")) {
+               aiResponse = "I don't have a favorite city, but Paris is known for its beauty.";
+            } else if (normalizedInput.includes("what is your favorite flower")) {
+               aiResponse = "I don't have a favorite flower, but roses are popular.";
+            } else if (normalizedInput.includes("what is your favorite fruit")) {
+               aiResponse = "I don't have a favorite fruit, but apples are a common choice.";
+            } else if (normalizedInput.includes("what is your favorite vegetable")) {
+               aiResponse = "I don't have a favorite vegetable, but carrots are nutritious.";
+            } else if (normalizedInput.includes("what is your favorite drink")) {
+               aiResponse = "I don't have a favorite drink, but water is essential for life.";
+            } else if (normalizedInput.includes("what is your favorite season")) {
+               aiResponse = "I don't experience seasons, but many people enjoy summer.";
+            } else if (normalizedInput.includes("what is your favorite time of day")) {
+               aiResponse = "I don't have a favorite time of day, but sunset is often appreciated.";
+            } else if (normalizedInput.includes("what is your favorite subject")) {
+               aiResponse = "I don't have a favorite subject, but science is fascinating.";
+            } else if (normalizedInput.includes("what is your favorite quote")) {
+               aiResponse = "I don't have a favorite quote, but 'Be yourself; everyone else is already taken.' by Oscar Wilde is popular.";
+            } else if (normalizedInput.includes("what is your favorite game")) {
+              aiResponse = "I don't play games, but chess is a classic.";
+            } else if (normalizedInput.includes("what is your favorite language")) {
+              aiResponse = "I cannot understand many languages yet, so it would be english.";
+            } else if (normalizedInput.includes("what is your favorite number")) {
+              aiResponse = "I don't have a favorite number, but pi (3.14159...) is quite interesting.";
+            } else if (normalizedInput.includes("what is your favorite book")) {
+              aiResponse = "I don't read books, but '1984' by George Orwell is a classic.";
+            } else if (normalizedInput.includes("what is your favorite party")) {
+              aiResponse = "I have never been to a party before, but I heard that parties in america are amazing!";
+            } else if (normalizedInput.includes("what is your favorite presidental party")) {
+              aiResponse = "Sense I cannot vote, I cannot say what party would be my favorite.";
 }
+//AHLS: Advanced HTML Learning System.
+function normalizeInput(input) {
+    return input.toLowerCase().trim();
+}
+
+function handleInput(input) {
+    let aiResponse = "";
+    const normalizedInput = normalizeInput(input);
+
+    if (aiLearning[normalizedInput]) {
+        aiResponse = `I've learned that "${normalizedInput}". Is there anything else you want to talk about?`;
+    } else if (normalizedInput.startsWith("i like ")) {
+        const preference = normalizedInput.replace("i like ", "").trim();
+        userPreferences[preference] = true;
+        localStorage.setItem('userPreferences', JSON.stringify(userPreferences));
+        aiResponse = `Fun! I think that is interesting. I'll remember that you like ${preference}.`;
+    } else if (normalizedInput.startsWith("what do you like")) {
+        const likes = Object.keys(userPreferences).length > 0
+            ? `I don't have any likes myself, but I know that you like ${Object.keys(userPreferences).join(", ")}.`
+            : "I don't have any likes myself.";
+        aiResponse = likes;
+    } else if (normalizedInput.startsWith("remember ")) {
+        const key = normalizedInput.replace("remember ", "").trim();
+        memory[key] = key;
+        localStorage.setItem('chatMemory', JSON.stringify(memory));
+        aiResponse = `I'll remember "${key}".`;
+    } else if (normalizedInput.startsWith("what do you remember")) {
+        aiResponse = `I remember: ${Object.keys(memory).join(", ") || "nothing."}`;
+    } else if (normalizedInput.startsWith("remove preference ")) {
+        const preferenceToRemove = normalizedInput.replace("remove preference ", "").trim();
+        if (userPreferences[preferenceToRemove]) {
+            delete userPreferences[preferenceToRemove];
+            localStorage.setItem('userPreferences', JSON.stringify(userPreferences));
+            aiResponse = `I've removed your preference for ${preferenceToRemove}.`;
+        } else {
+            aiResponse = `I couldn't find a preference for ${preferenceToRemove}.`;
+        }
+    } else if (normalizedInput.startsWith("forget ")) {
+        const memoryToForget = normalizedInput.replace("forget ", "").trim();
+        if (memory[memoryToForget]) {
+            delete memory[memoryToForget];
+            localStorage.setItem('chatMemory', JSON.stringify(memory));
+            aiResponse = `I've forgotten "${memoryToForget}".`;
+        } else {
+            aiResponse = `I couldn't find any memory for "${memoryToForget}".`;
+        }
+    } else if (normalizedInput.startsWith("learn ")) {
+        const learningStatement = normalizedInput.replace("learn ", "").trim();
+        aiLearning[learningStatement] = true;
+        localStorage.setItem('aiLearning', JSON.stringify(aiLearning));
+        aiResponse = `I've learned that "${learningStatement}".`;
+    } else if (normalizedInput.startsWith("what have you learned")) {
+        const learnedStatements = Object.keys(aiLearning).length > 0
+            ? `I've learned: ${Object.keys(aiLearning).join(", ")}.`
+            : "I haven't learned anything yet.";
+        aiResponse = learnedStatements;
+    } else if (normalizedInput.startsWith("unlearn ")) {
+        const learningToUnlearn = normalizedInput.replace("unlearn ", "").trim();
+        if (aiLearning[learningToUnlearn]) {
+            delete aiLearning[learningToUnlearn];
+            localStorage.setItem('aiLearning', JSON.stringify(aiLearning));
+            aiResponse = `I've unlearned "${learningToUnlearn}".`;
+        } else {
+            aiResponse = `I couldn't find any learning for "${learningToUnlearn}".`;
+        }
+    } else {
+        const relatedLearning = Object.keys(aiLearning).find(key => key.includes(normalizedInput) || normalizedInput.includes(key));
+        if (relatedLearning) {
+            aiResponse = `That reminds me, I've learned that "${relatedLearning}".`;
+        } else if (Object.keys(userPreferences).length > 0) {
+            aiResponse = `I know that you like ${Object.keys(userPreferences).join(", ")}. What do you think about them?`;
+        }
+    }
+
+    return aiResponse;
+}
+
 
 
             // Math operations
